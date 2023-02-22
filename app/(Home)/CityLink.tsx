@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "../page.module.css";
-import Search from "@/app/(Home)/Search";
 
 export default function CityLink({ details }: any) {
   return (

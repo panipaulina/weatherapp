@@ -6,13 +6,33 @@ const baseUrl =
     ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
     : "http://localhost:3000";
 
-async function getForecast(id: number) {
-  const res = await fetch(`${baseUrl}/api/city/${id}`);
-  if (!res.ok) {
+export async function generateStaticParams() {
+  return process.env.SUPPORTED_CITIES?.split(",").map((id) => ({ id }));
+}
+
+async function getForecast(id?: number) {
+  const cityDetailsResponse = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?id=${id}&units=metric&appid=${process.env.API_KEY}`,
+    { next: { revalidate: 5400 } }
+  );
+
+  if (!cityDetailsResponse.ok) {
     throw new Error("Failed to fetch data");
   }
 
-  return res.json();
+  const cityDetails = await cityDetailsResponse.json();
+
+  const forecastResponse = await fetch(
+    `https://api.openweathermap.org/data/2.5/forecast?lat=${cityDetails.coord.lat}&lon=${cityDetails.coord.lon}&units=metric&appid=${process.env.API_KEY}`,
+    { next: { revalidate: 5400 } }
+  );
+
+  if (!forecastResponse.ok) {
+    throw new Error("Failed to fetch data");
+  }
+
+  const forecastDetails = await forecastResponse.json();
+  return { forecast: forecastDetails, city: cityDetails };
 }
 
 export default async function City({
@@ -21,7 +41,11 @@ export default async function City({
   params: { id: number };
 }) {
   const { forecast, city } = await getForecast(id);
-  console.log(baseUrl);
+
+  if (!city) {
+    return null;
+  }
+
   return (
     <>
       <h3 className={styles.heading}>Weather details for {city.name}:</h3>
