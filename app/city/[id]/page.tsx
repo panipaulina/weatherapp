@@ -7,10 +7,12 @@ const baseUrl =
     : "http://localhost:3000";
 
 export async function generateStaticParams() {
-  return process.env.SUPPORTED_CITIES?.split(",").map((id) => ({ id }));
+  console.log("cities", process.env.SUPPORTED_CITIES);
+  const cities = process.env.SUPPORTED_CITIES?.split(",") || [];
+  return cities.map((id) => ({ id }));
 }
 
-async function getForecast(id?: number) {
+async function getForecast(id?: string) {
   const cityDetailsResponse = await fetch(
     `https://api.openweathermap.org/data/2.5/weather?id=${id}&units=metric&appid=${process.env.API_KEY}`,
     { next: { revalidate: 5400 } }
@@ -38,7 +40,7 @@ async function getForecast(id?: number) {
 export default async function City({
   params: { id },
 }: {
-  params: { id: number };
+  params: { id: string };
 }) {
   const { forecast, city } = await getForecast(id);
 
