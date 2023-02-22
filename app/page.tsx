@@ -1,91 +1,32 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+import styles from "./page.module.css";
+import CityLink from "@/app/(Home)/CityLink";
 
-const inter = Inter({ subsets: ['latin'] })
+async function getData() {
+  const res = await fetch(
+    `https://api.openweathermap.org/data/2.5/group?id=3530597,241170,3413829,2775220,4164138,290030,2174003,993800,6167865,5780993&units=metric&appid=${process.env.API_KEY}`
+  );
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
 
-export default function Home() {
+  // Recommendation: handle errors
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+}
+
+export default async function Home() {
+  const data = await getData();
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <>
+      <div className={styles.row}>
+        {data.list.map((city: any) => (
+          <CityLink key={city.id} details={city} />
+        ))}
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </>
+  );
 }

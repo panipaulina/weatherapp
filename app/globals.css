@@ -90,9 +90,12 @@ body {
   background: linear-gradient(
       to bottom,
       transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      #d17ad0
+    ) #8473ba;
+}
+
+h1 {
+  font-size: 3rem;
 }
 
 a {
